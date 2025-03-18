@@ -67,15 +67,24 @@ class ObraForm(forms.ModelForm):
         fields = ['codigo', 'contrato', 'local', 'ativo']
         labels = {
             'codigo': 'Cod. Obra',
-            'contrato': 'Contrato',
             'local': 'Local',
+            'contrato': 'Contrato',
             'ativo': 'Ativo',
         }
         help_texts = {
             'codigo': 'Código da obra/serviço',
             'local': 'Local de execução da obra',
+            'contrato': 'Informar o contrato da obra',
             'ativo': 'Indica se a obra está ativa',
         }
         widgets = {
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Se não houver instância (criação), remova o campo "ativo"
+        if not self.instance.pk:
+            self.fields.pop('ativo')
+        # Customiza o rótulo do campo 'contrato' para exibir também o contratante
+        self.fields['contrato'].label_from_instance = lambda obj: f"{obj.numero} - {obj.contratante}"

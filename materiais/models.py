@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Sum, DecimalField, Case, When
 
 class Unidade(models.Model):
     unidade = models.CharField(max_length=50, unique=True, help_text="Nome da unidade, ex: Kg")
@@ -13,7 +14,6 @@ class Unidade(models.Model):
 
     def __str__(self):
         return self.unidade
-
 
 class GrupoMaterial(models.Model):
     nome = models.CharField(max_length=100, unique=True, help_text="Nome do grupo, ex: Materiais de Construção")
@@ -59,3 +59,13 @@ class Material(models.Model):
     def __str__(self):
         return self.nome
 
+
+@property
+def saldo(self):
+    entradas = self.movimento_itens.filter(tipo='ENT').aggregate(
+        total=Sum('quantidade', output_field=DecimalField())
+    )['total'] or 0
+    saidas = self.movimento_itens.filter(tipo='SAI').aggregate(
+        total=Sum('quantidade', output_field=DecimalField())
+    )['total'] or 0
+    return self.quantidade + entradas - saidas

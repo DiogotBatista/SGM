@@ -1,28 +1,27 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import redirect
 from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth.models import Group
 
-class GestorOrSuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    raise_exception = False  # Impede a elevação direta da exceção
+def has_access(user, allowed_roles):
+    """
+    Retorna True se o usuário for superusuário ou pertencer a pelo menos um dos grupos permitidos.
+    Se allowed_roles estiver vazia, serão considerados todos os grupos existentes.
+    """
+    if user.is_superuser:
+        return True
+    if not allowed_roles:
+        # Se a lista de roles estiver vazia, considere todos os grupos existentes
+        allowed_roles = list(Group.objects.values_list('name', flat=True))
+    return user.groups.filter(name__in=allowed_roles).exists()
+
+class AccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    # Se allowed_roles for uma lista vazia, serão considerados todos os grupos
+    allowed_roles = []
 
     def test_func(self):
-        user = self.request.user
-        return user.is_superuser or user.groups.filter(name='Gestor').exists()
+        return has_access(self.request.user, self.allowed_roles)
 
     def handle_no_permission(self):
-        # Exibe uma mensagem de erro e redireciona para uma página segura, por exemplo, a home
         messages.warning(self.request, "Acesso não autorizado.")
         return redirect('index')
-
-
-class GestorOrAlmoxarifeOrSuperuserRequidedMixin(LoginRequiredMixin, UserPassesTestMixin):
-    raise_exception = False  # Impede a elevação direta da exceção
-
-    def test_func(self):
-        user = self.request.user
-        return user.is_superuser or user.groups.filter(name__in=['Gestor', 'Almoxarife']).exists()
-
-    def handle_no_permission(self):
-        # Exibe uma mensagem de erro e redireciona para uma página segura, por exemplo, a home
-        messages.warning(self.request, "Acesso não autorizado.")
-        return redirect('lista_materiais')

@@ -1,14 +1,15 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from usuarios.mixins import GestorOrAlmoxarifeOrSuperuserRequidedMixin
+from usuarios.mixins import AccessRequiredMixin
 from .models import Material, GrupoMaterial
 from .forms import MaterialForm
 from django.contrib import messages
 from django.db.models import Q
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class MaterialListView(LoginRequiredMixin, ListView):
+
+class MaterialListView(AccessRequiredMixin, ListView):
+    allowed_roles = []
     model = Material
     template_name = 'materiais/lista_material.html'
     context_object_name = 'materiais'
@@ -32,7 +33,8 @@ class MaterialListView(LoginRequiredMixin, ListView):
         context['grupos'] = GrupoMaterial.objects.filter(ativo=True)
         return context
 
-class MaterialCreateView(GestorOrAlmoxarifeOrSuperuserRequidedMixin, CreateView):
+class MaterialCreateView(AccessRequiredMixin, CreateView):
+    allowed_roles = ['Gestor', 'Almoxarife']
     model = Material
     form_class = MaterialForm
     template_name = 'materiais/cadastrar_material.html'
@@ -46,7 +48,8 @@ class MaterialCreateView(GestorOrAlmoxarifeOrSuperuserRequidedMixin, CreateView)
         messages.success(self.request, "Material cadastrado com sucesso!")
         return response
 
-class MaterialUpdateView(GestorOrAlmoxarifeOrSuperuserRequidedMixin, UpdateView):
+class MaterialUpdateView(AccessRequiredMixin, UpdateView):
+    allowed_roles = ['Gestor', 'Almoxarife']
     model = Material
     form_class = MaterialForm
     template_name = 'materiais/editar_material.html'
@@ -59,12 +62,13 @@ class MaterialUpdateView(GestorOrAlmoxarifeOrSuperuserRequidedMixin, UpdateView)
         messages.success(self.request, "Material atualizado com sucesso!")
         return response
 
-class MaterialDeleteView(GestorOrAlmoxarifeOrSuperuserRequidedMixin, DeleteView):
+class MaterialDeleteView(AccessRequiredMixin, DeleteView):
+    allowed_roles = ['Gestor', 'Almoxarife']
     model = Material
     template_name = 'materiais/excluir_material.html'
     success_url = reverse_lazy('lista_materiais')
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
         messages.success(self.request, "Material excluído com sucesso!")
         return response

@@ -3,10 +3,11 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Usuario
 from .forms import UsuarioCreationForm, UsuarioChangeForm
 from django.contrib import messages
-from .mixins import GestorOrSuperuserRequiredMixin
+from .mixins import AccessRequiredMixin
 from django.db.models import Q
 
-class UsuarioListView(GestorOrSuperuserRequiredMixin, ListView):
+class UsuarioListView(AccessRequiredMixin, ListView):
+    allowed_roles = ['Gestor']
     model = Usuario
     template_name = 'usuarios/lista_usuario.html'
     context_object_name = 'usuarios'
@@ -25,7 +26,8 @@ class UsuarioListView(GestorOrSuperuserRequiredMixin, ListView):
             )
         return queryset
 
-class UsuarioCreateView(GestorOrSuperuserRequiredMixin, CreateView):
+class UsuarioCreateView(AccessRequiredMixin, CreateView):
+    allowed_roles = ['Gestor']
     model = Usuario
     form_class = UsuarioCreationForm
     template_name = 'usuarios/cadastrar_usuario.html'
@@ -36,7 +38,8 @@ class UsuarioCreateView(GestorOrSuperuserRequiredMixin, CreateView):
         messages.success(self.request, "Usuário cadastrado com sucesso!")
         return response
 
-class UsuarioUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
+class UsuarioUpdateView(AccessRequiredMixin, UpdateView):
+    allowed_roles = ['Gestor']
     model = Usuario
     form_class = UsuarioChangeForm
     template_name = 'usuarios/editar_usuario.html'
@@ -47,7 +50,8 @@ class UsuarioUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
         messages.success(self.request, "Cadastro atualizado com sucesso!")
         return response
 
-class UsuarioDeleteView(GestorOrSuperuserRequiredMixin, DeleteView):
+class UsuarioDeleteView(AccessRequiredMixin, DeleteView):
+    allowed_roles = ['Gestor']
     model = Usuario
     template_name = 'usuarios/excluir_usuario.html'
     success_url = reverse_lazy('lista_usuarios')

@@ -9,20 +9,7 @@
 </div>
 <div class="container mt-4">
     <div class="row g-4 mt-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body d-flex flex-column text-center gap-3">
-                    <div>
-                        <i class="bi bi-people-fill display-4 text-primary mb-3"></i>
-                        <h5 class="card-title">Usuários</h5>
-                        <p class="card-text">Gerencie os usuários do sistema, cadastre, edite e defina acessos.</p>
-                    </div>
-                    <div class = "mt-auto">
-                        <a href="{% url 'lista_usuarios' %}" class="btn btn-outline-primary">Acessar</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--            Card materiais-->
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex flex-column text-center gap-3">
@@ -37,6 +24,7 @@
                 </div>
             </div>
         </div>
+        <!--            Card Movimentações-->
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex flex-column text-center gap-3">
@@ -46,14 +34,13 @@
                         <p class="card-text">Controle as entradas e saídas de materiais do almoxarifado.</p>
                     </div>
                     <div class = "mt-auto">
-                        <a href="#" class="btn btn-outline-warning">Acessar</a>
+                        <a href="{% url 'dashboard_movimentacoes' %}" class="btn btn-outline-warning">Acessar</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row g-4 mt-4">
-        <div class="col-md-4 offset-md-4">
+        <!--            Card Configurções-->
+        <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex flex-column text-center gap-3">
                     <div>

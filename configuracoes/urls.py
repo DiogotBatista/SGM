@@ -1,6 +1,7 @@
 from django.urls import path, include
 from .views import (MenuView,ContratanteListView, ContratanteCreateView, ContratanteUpdateView, ContratanteDeleteView,
-                    ContratosListView, ContratosCreateView, ContratoUpdateView, ContratoDeleteView)
+                    ContratosListView, ContratosCreateView, ContratoUpdateView, ContratoDeleteView, ObrasListView,
+                    ObrasCreateView, ObrasUpdateView, ObrasDeleteView)
 
 
 urlpatterns = [
@@ -20,4 +21,10 @@ urlpatterns = [
         path('excluir/<int:pk>/', ContratoDeleteView.as_view(), name='excluir_contratos'),
     ])),
     #Obras
+    path('obras/', include([
+        path('', ObrasListView.as_view(), name='lista_obras'),
+        path('cadastrar/', ObrasCreateView.as_view(), name='cadastrar_obras'),
+        path('editar/<int:pk>/', ObrasUpdateView.as_view(), name='editar_obras'),
+        path('excluir/<int:pk>/', ObrasDeleteView.as_view(), name='excluir_obras'),
+    ])),
 ]

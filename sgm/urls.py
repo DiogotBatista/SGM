@@ -19,7 +19,7 @@ urlpatterns = [
     # app materiais
     path('materiais/', include('materiais.urls')),
     # app movimentacoes
-    # path('movimentacoes/', include('movimentacoes.urls')),
+    path('movimentacoes/', include('movimentacoes.urls')),
     # app configuracoes
     path('config/', include('configuracoes.urls')),
 

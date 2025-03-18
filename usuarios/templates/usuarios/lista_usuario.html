@@ -50,11 +50,9 @@
                         <a href="{% url 'editar_usuario' usuario.pk %}" class="btn btn-primary btn-sm">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>
-                        {% if request.user.is_superuser %}
                         <a href="{% url 'excluir_usuario' usuario.pk %}" class="btn btn-danger btn-sm">
                             <i class="bi bi-trash"></i> Excluir
                         </a>
-                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

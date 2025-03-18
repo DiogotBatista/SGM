@@ -66,3 +66,4 @@ class ObraAdmin(admin.ModelAdmin):
         return '-'
 
     get_updated_by.short_description = 'Resp. Atualização'
+

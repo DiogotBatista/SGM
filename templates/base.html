@@ -55,23 +55,13 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'lista_usuarios' %}">
-                                <i class="bi bi-people"></i> Usuários
-                            </a>
-                        </li>
                          <li class="nav-item">
                             <a class="nav-link" href="{% url 'lista_materiais' %}">
                                 <i class="bi bi-box-seam"></i> Materiais
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                               <i class="bi bi-cone-striped"></i> Obras
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{% url 'dashboard_movimentacoes' %}">
                                 <i class="bi bi-arrow-repeat"></i> Movimentações
                             </a>
                         </li>
@@ -81,9 +71,10 @@
                             </a>
 
                               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                  <a class="dropdown-item" href="{% url 'lista_contratantes' %}">Contratantes</a>
-                                  <a class="dropdown-item" href="{% url 'lista_contratos' %}">Contratos</a>
-                                  <a class="dropdown-item" href="#">Obras</a>
+                                  <a class="dropdown-item" href="{% url 'lista_usuarios' %}"><i class="bi bi-people-fill"></i> Usuários</a>
+                                  <a class="dropdown-item" href="{% url 'lista_contratantes' %}"><i class="bi bi bi-buildings"></i> Contratantes</a>
+                                  <a class="dropdown-item" href="{% url 'lista_contratos' %}"><i class="bi bi-file-earmark-text"></i> Contratos</a>
+                                  <a class="dropdown-item" href="{% url 'lista_obras' %}"><i class="bi bi-building"></i> Obras</a>
                               </div>
                         </li>
                         {% if user.is_superuser  %}

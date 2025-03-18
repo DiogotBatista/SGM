@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Detalhes da Movimentação{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Detalhes da Movimentação</h1>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      Código: {{ movimentacao.codigo }}
+    </div>
+    <div class="card-body">
+      <p><strong>Tipo:</strong> {{ movimentacao.tipo}}</p>
+      <p><strong>Obra:</strong> {{ movimentacao.obra |default:"-" }}</p>
+      <p><strong>Doc:</strong> {{ movimentacao.documento |default:"-" }}</p>
+      <p><strong>Data da Movimentação:</strong> {{ movimentacao.data_movimentacao|date:"d/m/Y H:i" }}</p>
+      <p><strong>Realizado por:</strong> {{ movimentacao.realizado_por.get_full_name|default:movimentacao.realizado_por.username }}</p>
+      <p><strong>Observações:</strong> {{ movimentacao.observacoes|default:"-" }}</p>
+    </div>
+  </div>
+
+  <h2 class="mb-3">Itens da Movimentação</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Material</th>
+          <th>Tipo</th>
+          <th>Quantidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in movimentacao.itens.all %}
+          <tr>
+            <td>{{ item.material }}</td>
+            <td>{{ item.get_tipo_display }}</td>
+            <td>{{ item.quantidade }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">Nenhum item cadastrado.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <a href="{% url 'lista_movimentacoes' %}" class="btn btn-secondary mt-3">
+    <i class="bi bi-arrow-left"></i> Voltar
+  </a>
+</div>
+{% endblock %}

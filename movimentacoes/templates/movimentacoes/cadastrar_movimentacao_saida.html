@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %}Cadastrar Movimentação de Saída{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Cadastrar Movimentação de Saída</h1>
+  <form method="post" novalidate id="movimentacaoForm">
+    {% csrf_token %}
+    <!-- Dados da Movimentação -->
+    <div class="card mb-4">
+      <div class="card-header">
+        Dados da Movimentação
+      </div>
+      <div class="card-body">
+        {{ form.as_p }}
+      </div>
+    </div>
+
+    <!-- Itens da Movimentação -->
+    <div class="card mb-4">
+      <div class="card-header">
+        Itens da Movimentação
+      </div>
+      <div class="card-body">
+        {{ formset.management_form }}
+        <table class="table table-bordered" id="formsetTable">
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Quantidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form_item in formset %}
+              <tr class="formsetRow">
+                <td>{{ form_item.material }}</td>
+                <td>{{ form_item.quantidade }}</td>
+                <td>
+                  <button type="button" class="btn btn-danger btn-sm remove-row">
+                    <i class="bi bi-trash"></i> Remover
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <button type="button" id="addRow" class="btn btn-outline-primary mt-2">
+          <i class="bi bi-plus-circle"></i> Adicionar Material
+        </button>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-save"></i> Salvar Movimentação
+      </button>
+      <a href="{% url 'lista_movimentacoes' %}" class="btn btn-secondary">
+        <i class="bi bi-x-circle"></i> Cancelar
+      </a>
+    </div>
+  </form>
+</div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// Função para atualizar os índices dos formulários no formset
+function updateFormsetIndices() {
+    var totalForms = $('#id_form-TOTAL_FORMS');
+    var formCount = $('.formsetRow').length;
+    totalForms.val(formCount);
+    $('.formsetRow').each(function(index) {
+        $(this).find(':input').each(function(){
+            var name = $(this).attr('name');
+            if(name){
+                // Substitui "form-<número>-" por "form-<index>-"
+                var newName = name.replace(/form-\d+-/, 'form-' + index + '-');
+                $(this).attr('name', newName);
+                var id = $(this).attr('id');
+                if(id){
+                    var newId = id.replace(/form-\d+-/, 'form-' + index + '-');
+                    $(this).attr('id', newId);
+                }
+            }
+        });
+    });
+}
+
+$(document).ready(function(){
+  // Adiciona uma nova linha no formset
+  $('#addRow').click(function(){
+    var formCount = $('.formsetRow').length;
+    // Clona a primeira linha como template
+    var newRow = $('.formsetRow:first').clone();
+    // Limpa os valores dos inputs clonados
+    newRow.find('input, select, textarea').each(function(){
+      $(this).val('');
+    });
+    // Adiciona a nova linha na tabela
+    $('#formsetTable tbody').append(newRow);
+    updateFormsetIndices();
+  });
+
+  // Remove uma linha do formset
+  $('#formsetTable').on('click', '.remove-row', function(){
+    if ($('.formsetRow').length > 1) {
+      $(this).closest('.formsetRow').remove();
+      updateFormsetIndices();
+    } else {
+      alert("Pelo menos um item é obrigatório.");
+    }
+  });
+});
+</script>
+{% endblock %}
+{% endblock %}

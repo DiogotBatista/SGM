@@ -1,17 +1,18 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from .models import Contratante, Contrato
-from .forms import ContratanteForm, ContratoForm
-from usuarios.mixins import GestorOrSuperuserRequiredMixin
+from .models import Contratante, Contrato, Obra
+from .forms import ContratanteForm, ContratoForm, ObraForm
+from usuarios.mixins import AccessRequiredMixin
 from django.db.models import Q
 
-class MenuView(LoginRequiredMixin, TemplateView):
+class MenuView(AccessRequiredMixin, TemplateView):
+    allowed_roles = []
     template_name = 'configuracoes/menu.html'
 
 # VIEWS DOS CONTRATANTES
-class ContratanteListView(LoginRequiredMixin, ListView):
+class ContratanteListView(AccessRequiredMixin, ListView):
+    allowed_roles = []
     model = Contratante
     template_name = 'configuracoes/contratantes/lista_contratante.html'
     context_object_name = 'contratantes'
@@ -28,7 +29,8 @@ class ContratanteListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class ContratanteCreateView(GestorOrSuperuserRequiredMixin, CreateView):
+class ContratanteCreateView(AccessRequiredMixin, CreateView):
+    allowed_roles = ['Gestor']
     model = Contratante
     form_class = ContratanteForm
     template_name = 'configuracoes/contratantes/cadastrar_contratante.html'
@@ -40,7 +42,8 @@ class ContratanteCreateView(GestorOrSuperuserRequiredMixin, CreateView):
         messages.success(self.request, "Empresa cadastrada com sucesso!")
         return super().form_valid(form)
 
-class ContratanteUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
+class ContratanteUpdateView(AccessRequiredMixin, UpdateView):
+    allowed_roles = ['Gestor']
     model = Contratante
     form_class = ContratanteForm
     template_name = 'configuracoes/contratantes/editar_contratante.html'
@@ -50,7 +53,8 @@ class ContratanteUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
         messages.success(self.request, "Empresa atualizada com sucesso!")
         return super().form_valid(form)
 
-class ContratanteDeleteView(GestorOrSuperuserRequiredMixin, DeleteView):
+class ContratanteDeleteView(AccessRequiredMixin, DeleteView):
+    allowed_roles = ['Gestor']
     model = Contratante
     template_name = 'configuracoes/contratantes/excluir_contratante.html'
     success_url = reverse_lazy('lista_contratantes')
@@ -62,7 +66,8 @@ class ContratanteDeleteView(GestorOrSuperuserRequiredMixin, DeleteView):
 
 
 # VIEWS DOS CONTRATOS
-class ContratosListView(LoginRequiredMixin, ListView):
+class ContratosListView(AccessRequiredMixin, ListView):
+    allowed_roles = []
     model = Contrato
     template_name = 'configuracoes/contratos/lista_contratos.html'
     context_object_name = 'contratos'
@@ -79,7 +84,8 @@ class ContratosListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class ContratosCreateView(GestorOrSuperuserRequiredMixin, CreateView):
+class ContratosCreateView(AccessRequiredMixin, CreateView):
+    allowed_roles = ['Gestor']
     model = Contrato
     form_class = ContratoForm
     template_name = 'configuracoes/contratos/cadastrar_contratos.html'
@@ -91,7 +97,8 @@ class ContratosCreateView(GestorOrSuperuserRequiredMixin, CreateView):
         messages.success(self.request, "Contrato cadastrado com sucesso!")
         return super().form_valid(form)
 
-class ContratoUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
+class ContratoUpdateView(AccessRequiredMixin, UpdateView):
+    allowed_roles = ['Gestor']
     model = Contrato
     form_class = ContratoForm
     template_name = 'configuracoes/contratos/editar_contratos.html'
@@ -101,7 +108,8 @@ class ContratoUpdateView(GestorOrSuperuserRequiredMixin, UpdateView):
         messages.success(self.request, "Contrato atualizado com sucesso!")
         return super().form_valid(form)
 
-class ContratoDeleteView(GestorOrSuperuserRequiredMixin, DeleteView):
+class ContratoDeleteView(AccessRequiredMixin, DeleteView):
+    allowed_roles = ['Gestor']
     model = Contrato
     template_name = 'configuracoes/contratos/excluir_contratos.html'
     success_url = reverse_lazy('lista_contratos')
@@ -113,4 +121,55 @@ class ContratoDeleteView(GestorOrSuperuserRequiredMixin, DeleteView):
 
 
 # VIEWS DAS OBRAS
+class ObrasListView(AccessRequiredMixin, ListView):
+    allowed_roles = []
+    model = Obra
+    template_name = 'configuracoes/obras/lista_obras.html'
+    context_object_name = 'obras'
+    paginate_by = 10
+    ordering = ['id']
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(codigo__icontains=query) |
+                Q(contrato__numero__icontains=query)
+            )
+        return queryset
+
+class ObrasCreateView(AccessRequiredMixin, CreateView):
+    allowed_roles = ['Gestor']
+    model = Obra
+    form_class = ObraForm
+    template_name = 'configuracoes/obras/cadastrar_obras.html'
+    success_url = reverse_lazy('lista_obras')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        form.instance.updated_by = self.request.user
+        messages.success(self.request, "Obras cadastrada com sucesso!")
+        return super().form_valid(form)
+
+class ObrasUpdateView(AccessRequiredMixin, UpdateView):
+    allowed_roles = ['Gestor']
+    model = Obra
+    form_class = ObraForm
+    template_name = 'configuracoes/obras/editar_obras.html'
+    success_url = reverse_lazy('lista_obras')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Obra atualizada com sucesso!")
+        return super().form_valid(form)
+
+class ObrasDeleteView(AccessRequiredMixin, DeleteView):
+    allowed_roles = ['Gestor']
+    model = Obra
+    template_name = 'configuracoes/obras/excluir_obras.html'
+    success_url = reverse_lazy('lista_obras')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "Obra excluída com sucesso!")
+        return response
