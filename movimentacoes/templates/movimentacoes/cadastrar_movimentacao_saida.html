@@ -23,6 +23,16 @@
       </div>
       <div class="card-body">
         {{ formset.management_form }}
+
+        <!-- Exibição de erros gerais do formset -->
+        {% if formset.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in formset.non_field_errors %}
+              {{ error }}<br>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <table class="table table-bordered" id="formsetTable">
           <thead>
             <tr>
@@ -34,8 +44,32 @@
           <tbody>
             {% for form_item in formset %}
               <tr class="formsetRow">
-                <td>{{ form_item.material }}</td>
-                <td>{{ form_item.quantidade }}</td>
+                <td>
+                  <div class="form-group">
+                    {{ form_item.material.label_tag }}
+                    {{ form_item.material }}
+                    {% if form_item.material.errors %}
+                      <div class="text-danger">
+                        {% for error in form_item.material.errors %}
+                          {{ error }}<br>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group">
+                    {{ form_item.quantidade.label_tag }}
+                    {{ form_item.quantidade }}
+                    {% if form_item.quantidade.errors %}
+                      <div class="text-danger">
+                        {% for error in form_item.quantidade.errors %}
+                          {{ error }}<br>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </td>
                 <td>
                   <button type="button" class="btn btn-danger btn-sm remove-row">
                     <i class="bi bi-trash"></i> Remover
@@ -55,7 +89,7 @@
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-save"></i> Salvar Movimentação
       </button>
-      <a href="{% url 'lista_movimentacoes' %}" class="btn btn-secondary">
+      <a href="{% url 'dashboard_movimentacoes' %}" class="btn btn-secondary">
         <i class="bi bi-x-circle"></i> Cancelar
       </a>
     </div>
@@ -88,7 +122,7 @@ function updateFormsetIndices() {
 }
 
 $(document).ready(function(){
-  // Adiciona uma nova linha no formset
+  // Adiciona uma nova linha ao formset
   $('#addRow').click(function(){
     var formCount = $('.formsetRow').length;
     // Clona a primeira linha como template

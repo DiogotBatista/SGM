@@ -42,14 +42,15 @@ class Movimentacao(models.Model):
     def save(self, *args, **kwargs):
         """
         Salva a movimentação.
-        Se for uma nova instância (sem pk) e o código não estiver definido, gera um código
-        com o prefixo "MV" seguido do ID formatado com zeros à esquerda (6 dígitos).
+        Se for uma nova instância (sem pk) e o código não estiver definido,
+        gera um código com o prefixo "MV" seguido do ID formatado com zeros à esquerda (6 dígitos).
         """
         is_new = self.pk is None
         super().save(*args, **kwargs)
         if is_new and not self.codigo:
             self.codigo = "MV" + str(self.pk).zfill(6)
             super().save(update_fields=['codigo'])
+
     def __str__(self):
         return self.codigo
 
@@ -89,10 +90,8 @@ class MovimentoItem(models.Model):
         choices=TIPO_CHOICES,
         verbose_name='Tipo de Movimentação'
     )
-    quantidade = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name='Quantidade'
+    quantidade = models.IntegerField(
+       verbose_name='Quantidade'
     )
 
     class Meta:
@@ -105,20 +104,19 @@ class MovimentoItem(models.Model):
         Valida o item da movimentação:
         - A quantidade deve ser positiva.
         - Para saídas, a quantidade não pode exceder o saldo disponível do material.
-          Se o modelo Material tiver uma propriedade `saldo`, ela será utilizada; caso contrário,
-          usa-se o valor do campo 'quantidade' como saldo inicial.
         """
-        if self.quantidade <= 0:
-            raise ValidationError("A quantidade deve ser positiva.")
+        if self.quantidade is None or self.quantidade <= 0:
+            raise ValidationError("A quantidade deve ser um valor positivo.")
+
         if self.tipo == self.SAIDA:
-            # Verifica se o modelo Material possui uma propriedade 'saldo'
-            if hasattr(self.material, 'saldo'):
-                saldo = self.material.saldo
-            else:
-                saldo = self.material.quantidade
+            saldo = self.material.saldo_atual  # ou saldo_atual, conforme sua implementação
             if self.quantidade > saldo:
-                raise ValidationError(f"Quantidade para saída ({self.quantidade}) excede o saldo disponível ({saldo}).")
+                raise ValidationError(
+                    f"Quantidade para saída ({self.quantidade}) excede o saldo disponível ({saldo})."
+                )
 
     def __str__(self):
+        # Corrigido: utiliza 'quantidade' em vez de 'saldo'
         return f"{self.get_tipo_display()} - {self.quantidade} de {self.material.nome}"
+
 

@@ -7,7 +7,7 @@
   <!-- Formulário de Pesquisa -->
   <form method="get" class="mb-3">
     <div class="input-group">
-      <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Pesquisar por obra...">
+      <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Pesquisar por Cod. movimentação ou obra...">
       <button class="btn btn-outline-secondary" type="submit">
         <i class="bi bi-search"></i> Pesquisar
       </button>
@@ -25,7 +25,7 @@
           <th class="text-center">Código</th>
           <th class="text-center">Obra</th>
           <th class="text-center">Tipo</th>
-          <th class="text-center">Ducumento</th>
+          <th class="text-center">Documento</th>
           <th class="text-center">Data da Movimentação</th>
           <th class="text-center">Realizado por</th>
           <th class="text-center">Observações</th>
@@ -38,7 +38,7 @@
             <td class="text-center">{{ movimentacao.codigo }}</td>
             <td>{{ movimentacao.obra |default:"-" }}</td>
             <td class="text-center">{{ movimentacao.tipo }}
-            <td>{{ movimentacao.documento |default:"-" }}</td>
+            <td class="text-center">{{ movimentacao.documento |default:"-" }}</td>
             <td class="text-center">{{ movimentacao.data_movimentacao|date:"d/m/Y H:i" }}</td>
             <td>
               {% if movimentacao.realizado_por %}
@@ -56,7 +56,7 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="6" class="text-center">Nenhuma movimentação encontrada.</td>
+            <td colspan="8" class="text-center">Nenhuma movimentação encontrada.</td>
           </tr>
         {% endfor %}
       </tbody>

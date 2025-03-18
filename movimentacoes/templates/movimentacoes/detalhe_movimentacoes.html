@@ -9,11 +9,17 @@
       Código: {{ movimentacao.codigo }}
     </div>
     <div class="card-body">
-      <p><strong>Tipo:</strong> {{ movimentacao.tipo}}</p>
-      <p><strong>Obra:</strong> {{ movimentacao.obra |default:"-" }}</p>
-      <p><strong>Doc:</strong> {{ movimentacao.documento |default:"-" }}</p>
+      <p><strong>Tipo:</strong> {{ movimentacao.tipo }}</p>
+      <p><strong>Obra:</strong> {{ movimentacao.obra|default:"-" }}</p>
+      <p><strong>Documento:</strong> {{ movimentacao.documento|default:"-" }}</p>
       <p><strong>Data da Movimentação:</strong> {{ movimentacao.data_movimentacao|date:"d/m/Y H:i" }}</p>
-      <p><strong>Realizado por:</strong> {{ movimentacao.realizado_por.get_full_name|default:movimentacao.realizado_por.username }}</p>
+      <p><strong>Realizado por:</strong>
+        {% if movimentacao.realizado_por %}
+          {{ movimentacao.realizado_por.get_full_name|default:movimentacao.realizado_por.username }}
+        {% else %}
+          -
+        {% endif %}
+      </p>
       <p><strong>Observações:</strong> {{ movimentacao.observacoes|default:"-" }}</p>
     </div>
   </div>
@@ -29,7 +35,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for item in movimentacao.itens.all %}
+        {% for item in itens_paginated %}
           <tr>
             <td>{{ item.material }}</td>
             <td>{{ item.get_tipo_display }}</td>
@@ -37,12 +43,47 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="4" class="text-center">Nenhum item cadastrado.</td>
+            <td colspan="3" class="text-center">Nenhum item cadastrado.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+
+  <!-- Paginação dos itens -->
+  {% if itens_paginated.has_other_pages %}
+  <nav aria-label="Paginação de itens">
+    <ul class="pagination justify-content-center">
+      {% if itens_paginated.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ itens_paginated.previous_page_number }}" aria-label="Anterior">&laquo;</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+      {% endif %}
+
+      {% for num in itens_paginated.paginator.page_range %}
+        {% if itens_paginated.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if itens_paginated.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ itens_paginated.next_page_number }}" aria-label="Próximo">&raquo;</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
 
   <a href="{% url 'lista_movimentacoes' %}" class="btn btn-secondary mt-3">
     <i class="bi bi-arrow-left"></i> Voltar

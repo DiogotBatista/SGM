@@ -20,7 +20,8 @@ class GrupoMaterialAdmin(admin.ModelAdmin):
 class MaterialAdmin(admin.ModelAdmin):
     list_display = (
         'nome',
-        'quantidade',
+        'saldo_inicial',
+        'saldo_atual',
         'unidade',
         'grupo',
         'ativo',

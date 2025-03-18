@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Sum, DecimalField, Case, When
+from django.db.models import Sum, IntegerField
 
 class Unidade(models.Model):
     unidade = models.CharField(max_length=50, unique=True, help_text="Nome da unidade, ex: Kg")
@@ -29,12 +29,16 @@ class GrupoMaterial(models.Model):
 
 class Material(models.Model):
     nome = models.CharField(max_length=200)
-    quantidade = models.PositiveIntegerField(default=0)
+    saldo_inicial = models.PositiveIntegerField(default=0)
+    saldo_atual = models.PositiveIntegerField(default=0)
     # Referência para a Unidade cadastrada
     unidade = models.ForeignKey('Unidade', on_delete=models.SET_NULL, null=True, blank=True)
     # Referência para o Grupo de Material
     grupo = models.ForeignKey('GrupoMaterial', on_delete=models.SET_NULL, null=True, blank=True)
-    ativo = models.BooleanField(default=True, help_text="Indica que o material será tratado como ativo. Ao invés de excluir materiais, desmarque isso.")
+    ativo = models.BooleanField(
+        default=True,
+        help_text="Indica que o material será tratado como ativo. Ao invés de excluir materiais, desmarque isso."
+    )
     data_cadastro = models.DateTimeField(auto_now_add=True)
     data_alteracao = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
@@ -59,13 +63,21 @@ class Material(models.Model):
     def __str__(self):
         return self.nome
 
+    @property
+    def saldo_total(self):
+        """
+        Calcula o saldo total somando o saldo inicial com as entradas e subtraindo as saídas.
+        Assume que existe um relacionamento reverso chamado 'movimento_itens'
+        apontando para os itens de movimento relacionados ao material.
+        """
+        entradas = self.movimento_itens.filter(tipo='ENT').aggregate(
+            total=Sum('quantidade', output_field=IntegerField())
+        )['total'] or 0
+        saidas = self.movimento_itens.filter(tipo='SAI').aggregate(
+            total=Sum('quantidade', output_field=IntegerField())
+        )['total'] or 0
+        return self.saldo_inicial + entradas - saidas
 
-@property
-def saldo(self):
-    entradas = self.movimento_itens.filter(tipo='ENT').aggregate(
-        total=Sum('quantidade', output_field=DecimalField())
-    )['total'] or 0
-    saidas = self.movimento_itens.filter(tipo='SAI').aggregate(
-        total=Sum('quantidade', output_field=DecimalField())
-    )['total'] or 0
-    return self.quantidade + entradas - saidas
+
+
+
