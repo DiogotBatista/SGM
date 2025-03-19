@@ -31,6 +31,7 @@ class ContratanteListView(AccessRequiredMixin, ListView):
 
 class ContratanteCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratantes'
     model = Contratante
     form_class = ContratanteForm
     template_name = 'configuracoes/contratantes/cadastrar_contratante.html'
@@ -44,6 +45,7 @@ class ContratanteCreateView(AccessRequiredMixin, CreateView):
 
 class ContratanteUpdateView(AccessRequiredMixin, UpdateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratantes'
     model = Contratante
     form_class = ContratanteForm
     template_name = 'configuracoes/contratantes/editar_contratante.html'
@@ -55,6 +57,7 @@ class ContratanteUpdateView(AccessRequiredMixin, UpdateView):
 
 class ContratanteDeleteView(AccessRequiredMixin, DeleteView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratantes'
     model = Contratante
     template_name = 'configuracoes/contratantes/excluir_contratante.html'
     success_url = reverse_lazy('lista_contratantes')
@@ -86,6 +89,7 @@ class ContratosListView(AccessRequiredMixin, ListView):
 
 class ContratosCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratos'
     model = Contrato
     form_class = ContratoForm
     template_name = 'configuracoes/contratos/cadastrar_contratos.html'
@@ -99,6 +103,7 @@ class ContratosCreateView(AccessRequiredMixin, CreateView):
 
 class ContratoUpdateView(AccessRequiredMixin, UpdateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratos'
     model = Contrato
     form_class = ContratoForm
     template_name = 'configuracoes/contratos/editar_contratos.html'
@@ -110,6 +115,7 @@ class ContratoUpdateView(AccessRequiredMixin, UpdateView):
 
 class ContratoDeleteView(AccessRequiredMixin, DeleteView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_contratos'
     model = Contrato
     template_name = 'configuracoes/contratos/excluir_contratos.html'
     success_url = reverse_lazy('lista_contratos')
@@ -141,6 +147,7 @@ class ObrasListView(AccessRequiredMixin, ListView):
 
 class ObrasCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_obras'
     model = Obra
     form_class = ObraForm
     template_name = 'configuracoes/obras/cadastrar_obras.html'
@@ -154,6 +161,7 @@ class ObrasCreateView(AccessRequiredMixin, CreateView):
 
 class ObrasUpdateView(AccessRequiredMixin, UpdateView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_obras'
     model = Obra
     form_class = ObraForm
     template_name = 'configuracoes/obras/editar_obras.html'
@@ -165,6 +173,7 @@ class ObrasUpdateView(AccessRequiredMixin, UpdateView):
 
 class ObrasDeleteView(AccessRequiredMixin, DeleteView):
     allowed_roles = ['Gestor']
+    no_permission_redirect_url = 'lista_obras'
     model = Obra
     template_name = 'configuracoes/obras/excluir_obras.html'
     success_url = reverse_lazy('lista_obras')

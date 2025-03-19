@@ -22,7 +22,7 @@ class MovimentacoesDashboardView(AccessRequiredMixin, TemplateView):
     template_name = 'movimentacoes/dashboard_movimentacoes.html'
 
 class MovimentoListView(AccessRequiredMixin, ListView):
-    allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
+    allowed_roles = []
     model = Movimentacao
     template_name = 'movimentacoes/lista_movimentacoes.html'
     context_object_name = 'movimentacoes'
@@ -42,7 +42,7 @@ class MovimentoListView(AccessRequiredMixin, ListView):
 
 
 class MovimentoDetailView(AccessRequiredMixin, DetailView):
-    allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
+    allowed_roles = []
     model = Movimentacao
     template_name = 'movimentacoes/detalhe_movimentacoes.html'
     context_object_name = 'movimentacao'
@@ -74,6 +74,7 @@ MovimentoItemEntradaFormSet = inlineformset_factory(
 
 class MovimentacaoEntradaCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
+    no_permission_redirect_url = 'dashboard_movimentacoes'
     model = Movimentacao
     form_class = MovimentacaoEntradaForm
     template_name = 'movimentacoes/cadastrar_movimentacao_entrada.html'
@@ -112,6 +113,7 @@ class MovimentacaoEntradaCreateView(AccessRequiredMixin, CreateView):
 
 class MovimentacaoSaidaCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
+    no_permission_redirect_url = 'dashboard_movimentacoes'
     model = Movimentacao
     form_class = MovimentacaoSaidaForm
     template_name = 'movimentacoes/cadastrar_movimentacao_saida.html'

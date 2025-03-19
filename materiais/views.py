@@ -36,6 +36,7 @@ class MaterialListView(AccessRequiredMixin, ListView):
 
 class MaterialCreateView(AccessRequiredMixin, CreateView):
     allowed_roles = ['Gestor', 'Almoxarife']
+    no_permission_redirect_url = 'lista_materiais'
     model = Material
     form_class = MaterialForm
     template_name = 'materiais/cadastrar_material.html'
@@ -51,6 +52,7 @@ class MaterialCreateView(AccessRequiredMixin, CreateView):
 
 class MaterialUpdateView(AccessRequiredMixin, UpdateView):
     allowed_roles = ['Gestor', 'Almoxarife']
+    no_permission_redirect_url = 'lista_materiais'
     model = Material
     form_class = MaterialForm
     template_name = 'materiais/editar_material.html'
@@ -65,6 +67,7 @@ class MaterialUpdateView(AccessRequiredMixin, UpdateView):
 
 class MaterialDeleteView(AccessRequiredMixin, DeleteView):
     allowed_roles = ['Gestor', 'Almoxarife']
+    no_permission_redirect_url = 'lista_materiais'
     model = Material
     template_name = 'materiais/excluir_material.html'
     success_url = reverse_lazy('lista_materiais')
