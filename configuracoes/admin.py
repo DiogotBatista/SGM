@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contratante, Contrato, Obra
+from .models import Contratante, Contrato, Obra, Empresa_usuario
 
 @admin.register(Contratante)
 class ContratanteAdmin(admin.ModelAdmin):
@@ -67,3 +67,6 @@ class ObraAdmin(admin.ModelAdmin):
 
     get_updated_by.short_description = 'Resp. Atualização'
 
+@admin.register(Empresa_usuario)
+class ObraAdmin(admin.ModelAdmin):
+    list_display = ('nome', )

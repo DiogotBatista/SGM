@@ -4,87 +4,75 @@
 {% block content %}
 <div class="container mt-4">
   <h1 class="mb-4">Cadastrar Movimentação de Entrada</h1>
+
+  {# Bloco para exibir mensagens de erro do formulário #}
+  {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Por favor, corrija os erros abaixo:</strong>
+      <ul class="mb-0">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endif %}
+
   <form method="post" novalidate id="movimentacaoForm">
     {% csrf_token %}
     <!-- Dados da Movimentação -->
     <div class="card mb-4">
-      <div class="card-header">
-        Dados da Movimentação
-      </div>
+      <div class="card-header">Dados da Movimentação de entrada de material</div>
       <div class="card-body">
         {{ form.as_p }}
       </div>
     </div>
 
-    <!-- Itens da Movimentação -->
+    <!-- Seleção de Materiais -->
     <div class="card mb-4">
-      <div class="card-header">
-        Itens da Movimentação
-      </div>
+      <div class="card-header">Adicionar Material</div>
       <div class="card-body">
-        {{ formset.management_form }}
-
-        <!-- Exibição de erros gerais do formset -->
-        {% if formset.non_field_errors %}
-          <div class="alert alert-danger">
-            {% for error in formset.non_field_errors %}
-              {{ error }}<br>
-            {% endfor %}
+        <div class="row">
+          <!-- Campo de pesquisa com autocomplete -->
+          <div class="col-md-6">
+            <input type="text" id="materialSearch" class="form-control" placeholder="Pesquisar material por nome ou código">
+            <!-- Campo oculto para armazenar o ID do material selecionado -->
+            <input type="hidden" id="materialId">
           </div>
-        {% endif %}
-
-        <table class="table table-bordered" id="formsetTable">
+          <!-- Campo para quantidade -->
+          <div class="col-md-3">
+            <input type="number" id="materialQuantidade" class="form-control" placeholder="Quantidade">
+          </div>
+          <!-- Botão para adicionar -->
+          <div class="col-md-3">
+            <button type="button" id="addMaterial" class="btn btn-outline-primary">
+              <i class="bi bi-plus-circle"></i> Adicionar
+            </button>
+          </div>
+        </div>
+        <!-- Tabela para exibir os materiais adicionados -->
+        <table class="table table-bordered mt-3" id="listaMateriais">
           <thead>
             <tr>
               <th>Material</th>
+              <th>Código</th>
               <th>Quantidade</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {% for form_item in formset %}
-              <tr class="formsetRow">
-                <td>
-                  <div class="form-group">
-                    {{ form_item.material.label_tag }}
-                    {{ form_item.material }}
-                    {% if form_item.material.errors %}
-                      <div class="text-danger">
-                        {% for error in form_item.material.errors %}
-                          {{ error }}<br>
-                        {% endfor %}
-                      </div>
-                    {% endif %}
-                  </div>
-                </td>
-                <td>
-                  <div class="form-group">
-                    {{ form_item.quantidade.label_tag }}
-                    {{ form_item.quantidade }}
-                    {% if form_item.quantidade.errors %}
-                      <div class="text-danger">
-                        {% for error in form_item.quantidade.errors %}
-                          {{ error }}<br>
-                        {% endfor %}
-                      </div>
-                    {% endif %}
-                  </div>
-                </td>
-                <td>
-                  <button type="button" class="btn btn-danger btn-sm remove-row">
-                    <i class="bi bi-trash"></i> Remover
-                  </button>
-                </td>
-              </tr>
-            {% endfor %}
+            <!-- Linhas serão adicionadas dinamicamente -->
           </tbody>
         </table>
-        <button type="button" id="addRow" class="btn btn-outline-primary mt-2">
-          <i class="bi bi-plus-circle"></i> Adicionar Material
-        </button>
       </div>
     </div>
 
+    <!-- Botões de ação -->
     <div class="d-flex justify-content-between">
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-save"></i> Salvar Movimentação
@@ -95,57 +83,73 @@
     </div>
   </form>
 </div>
+{% endblock %}
 
 {% block extra_js %}
+<!-- Inclua jQuery e jQuery UI (para autocomplete) se ainda não estiverem presentes -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
 <script>
-// Função para atualizar os índices dos formulários no formset
-function updateFormsetIndices() {
-    var totalForms = $('#id_form-TOTAL_FORMS');
-    var formCount = $('.formsetRow').length;
-    totalForms.val(formCount);
-    $('.formsetRow').each(function(index) {
-        $(this).find(':input').each(function(){
-            var name = $(this).attr('name');
-            if(name){
-                // Substitui "form-<número>-" por "form-<index>-"
-                var newName = name.replace(/form-\d+-/, 'form-' + index + '-');
-                $(this).attr('name', newName);
-                var id = $(this).attr('id');
-                if(id){
-                    var newId = id.replace(/form-\d+-/, 'form-' + index + '-');
-                    $(this).attr('id', newId);
-                }
-            }
-        });
-    });
-}
-
 $(document).ready(function(){
-  // Adicionar nova linha ao formset
-  $('#addRow').click(function(){
-    var formCount = $('.formsetRow').length;
-    // Clona a primeira linha como template
-    var newRow = $('.formsetRow:first').clone();
-    // Limpa os valores dos inputs clonados
-    newRow.find('input, select, textarea').each(function(){
-      $(this).val('');
+    // Configura o autocomplete para o campo de busca
+    $("#materialSearch").autocomplete({
+        source: "{% url 'api_materials' %}", // Endpoint que retorna uma lista de materiais no formato JSON
+        minLength: 1,
+        select: function(event, ui) {
+            // Armazena o id do material selecionado e atualiza o campo com o nome/código
+            $("#materialId").val(ui.item.id);
+            $("#materialSearch").val(ui.item.label);
+            return false;
+        }
     });
-    // Anexa a nova linha ao final da tabela
-    $('#formsetTable tbody').append(newRow);
-    updateFormsetIndices();
-  });
 
-  // Remover linha do formset
-  $('#formsetTable').on('click', '.remove-row', function(){
-    if ($('.formsetRow').length > 1) {
-      $(this).closest('.formsetRow').remove();
-      updateFormsetIndices();
-    } else {
-      alert("Pelo menos um item é obrigatório.");
-    }
-  });
+    // Adiciona o material à lista
+    $("#addMaterial").click(function(){
+        var materialId = $("#materialId").val();
+        var materialName = $("#materialSearch").val();
+        var quantidade = $("#materialQuantidade").val();
+
+        // Valida se os campos foram preenchidos corretamente
+        if(!materialId || !materialName){
+            alert("Selecione um material válido.");
+            return;
+        }
+        if(!quantidade || quantidade <= 0){
+            alert("Informe uma quantidade válida.");
+            return;
+        }
+
+        // Cria uma nova linha com inputs ocultos para enviar os dados
+        var row = `<tr>
+                      <td>
+                        <input type="hidden" name="material_id[]" value="${materialId}">
+                        ${materialName}
+                      </td>
+                      <td>${materialId}</td>
+                      <td>
+                        <input type="hidden" name="quantidade[]" value="${quantidade}">
+                        ${quantidade}
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-material">
+                          <i class="bi bi-trash"></i> Remover
+                        </button>
+                      </td>
+                  </tr>`;
+        $("#listaMateriais tbody").append(row);
+
+        // Limpa os campos para a próxima inclusão
+        $("#materialSearch").val('');
+        $("#materialId").val('');
+        $("#materialQuantidade").val('');
+    });
+
+    // Permite remover materiais da lista
+    $("#listaMateriais").on("click", ".remove-material", function(){
+        $(this).closest("tr").remove();
+    });
 });
 </script>
-{% endblock %}
 {% endblock %}

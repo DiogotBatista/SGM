@@ -129,3 +129,12 @@ class Obra(models.Model):
 
     def __str__(self):
         return self.codigo
+
+class Empresa_usuario(models.Model):
+    nome = models.CharField(max_length=100, unique=True, help_text="Empresa que irá usar o Sistema")
+
+    class Meta:
+        verbose_name = 'Empresa_usuario'
+
+    def __str__(self):
+        return self.nome

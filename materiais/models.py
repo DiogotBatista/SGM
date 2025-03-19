@@ -31,6 +31,7 @@ class Material(models.Model):
     nome = models.CharField(max_length=200)
     saldo_inicial = models.PositiveIntegerField(default=0)
     saldo_atual = models.PositiveIntegerField(default=0)
+    armazenagem = models.CharField(max_length=5, null=True, blank=True, help_text="Local onde o material esta armazenado")
     # Referência para a Unidade cadastrada
     unidade = models.ForeignKey('Unidade', on_delete=models.SET_NULL, null=True, blank=True)
     # Referência para o Grupo de Material

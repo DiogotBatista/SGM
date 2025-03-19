@@ -11,17 +11,16 @@ def has_access(user, allowed_roles):
     if user.is_superuser:
         return True
     if not allowed_roles:
-        # Se a lista de roles estiver vazia, considere todos os grupos existentes
         allowed_roles = list(Group.objects.values_list('name', flat=True))
     return user.groups.filter(name__in=allowed_roles).exists()
 
 class AccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    # Se allowed_roles for uma lista vazia, serão considerados todos os grupos
-    allowed_roles = []
+    allowed_roles = []  # Grupos permitidos
+    no_permission_redirect_url = 'index'  # URL padrão para redirecionamento
 
     def test_func(self):
         return has_access(self.request.user, self.allowed_roles)
 
     def handle_no_permission(self):
         messages.warning(self.request, "Acesso não autorizado.")
-        return redirect('index')
+        return redirect(self.no_permission_redirect_url)

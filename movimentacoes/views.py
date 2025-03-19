@@ -14,6 +14,10 @@ from .forms import (
     MovimentacaoEntradaForm,
     MovimentoItemSaidaFormSet  # Importamos o formset customizado do forms.py
 )
+from django.http import JsonResponse
+from materiais.models import Material
+
+
 
 class MovimentacoesDashboardView(AccessRequiredMixin, TemplateView):
     allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
@@ -77,48 +81,34 @@ class MovimentacaoEntradaCreateView(AccessRequiredMixin, CreateView):
     template_name = 'movimentacoes/cadastrar_movimentacao_entrada.html'
     success_url = reverse_lazy('dashboard_movimentacoes')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.method == "POST":
-            context['formset'] = MovimentoItemEntradaFormSet(self.request.POST, prefix='form')
-        else:
-            context['formset'] = MovimentoItemEntradaFormSet(prefix='form')
-        return context
-
     def form_valid(self, form):
-        context = self.get_context_data(form=form)
-        formset = context.get('formset')
         form.instance.realizado_por = self.request.user
-
-        # Cria o objeto principal sem salvar no BD
         self.object = form.save(commit=False)
 
-        # Verifica se o formset é válido antes de salvar o objeto principal
-        if formset.is_valid():
-            with transaction.atomic():
-                self.object.save()  # Agora o objeto é salvo
-                formset.instance = self.object
-                formset.save()
-            messages.success(self.request, "Movimentação de entrada registrada com sucesso.")
-            return super().form_valid(form)
-        else:
+        # Obtenha os materiais enviados pelo formulário
+        material_ids = self.request.POST.getlist('material_id[]')
+        quantidades = self.request.POST.getlist('quantidade[]')
+
+        # Verifica se há pelo menos um material
+        if not material_ids:
+            form.add_error(None, "Adicione ao menos um material.")
             return self.form_invalid(form)
+
+        with transaction.atomic():
+            self.object.save()  # Salva a movimentação somente se houver material
+            for mat_id, qtde in zip(material_ids, quantidades):
+                MovimentoItem.objects.create(
+                    movimentacao=self.object,
+                    material_id=mat_id,
+                    quantidade=qtde,
+                    tipo=MovimentoItem.ENTRADA
+                )
+        messages.success(self.request, "Movimentação de entrada registrada com sucesso.")
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         context = self.get_context_data(form=form)
-        formset = context.get('formset')
-        errors = []
-        if formset:
-            # Captura erros gerais do formset
-            errors.extend(formset.non_form_errors())
-            # Captura erros dos campos individuais de cada formulário do formset
-            for form_item in formset:
-                for field in form_item:
-                    if field.errors:
-                        errors.extend(field.errors)
-        if errors:
-            from django.contrib import messages
-            messages.warning(self.request, "Erro(s): " + " ".join(errors))
+        # Caso haja erros adicionais, eles podem ser tratados aqui
         return self.render_to_response(context)
 
 
@@ -131,44 +121,75 @@ class MovimentacaoSaidaCreateView(AccessRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.method == "POST":
-            # Aqui usamos o formset customizado que já valida se o saldo é suficiente
-            context['formset'] = MovimentoItemSaidaFormSet(self.request.POST, prefix='form')
-        else:
-            context['formset'] = MovimentoItemSaidaFormSet(prefix='form')
+        # Se não for utilizar formset dinâmico via JavaScript, não precisa incluir formset no contexto.
         return context
 
     def form_valid(self, form):
-        context = self.get_context_data(form=form)
-        formset = context.get('formset')
         form.instance.realizado_por = self.request.user
-
-        # Cria o objeto principal sem salvar imediatamente
         self.object = form.save(commit=False)
 
-        if formset.is_valid():
-            with transaction.atomic():
-                self.object.save()
-                formset.instance = self.object
-                formset.save()
-            messages.success(self.request, "Movimentação de saída registrada com sucesso.")
-            return super().form_valid(form)
-        else:
+        # Verifica se há pelo menos um material selecionado
+        material_ids = self.request.POST.getlist('material_id[]')
+        quantidades = self.request.POST.getlist('quantidade[]')
+        if not material_ids:
+            form.add_error(None, "Adicione ao menos um material.")
             return self.form_invalid(form)
 
+        with transaction.atomic():
+            self.object.save()
+            for mat_id, qtde in zip(material_ids, quantidades):
+                try:
+                    material = Material.objects.get(id=mat_id)
+                except Material.DoesNotExist:
+                    form.add_error(None, f"Material com id {mat_id} não encontrado.")
+                    return self.form_invalid(form)
+
+                try:
+                    qtde_int = int(qtde)
+                except ValueError:
+                    form.add_error(None, "Quantidade inválida.")
+                    return self.form_invalid(form)
+
+                if qtde_int <= 0:
+                    form.add_error(None, "A quantidade deve ser um valor positivo.")
+                    return self.form_invalid(form)
+
+                if material.saldo_atual < qtde_int:
+                    form.add_error(
+                        None,
+                        f"Quantidade para saída ({qtde_int}) excede o saldo disponível ({material.saldo_atual}) para o material {material.nome}."
+                    )
+                    return self.form_invalid(form)
+
+                MovimentoItem.objects.create(
+                    movimentacao=self.object,
+                    material=material,
+                    quantidade=qtde_int,
+                    tipo=MovimentoItem.SAIDA
+                )
+        messages.success(self.request, "Movimentação de saída registrada com sucesso.")
+        return super().form_valid(form)
+
     def form_invalid(self, form):
-        context = self.get_context_data(form=form)
-        formset = context.get('formset')
-        errors = []
-        if formset:
-            # Captura erros gerais do formset
-            errors.extend(formset.non_form_errors())
-            # Captura erros dos campos individuais de cada formulário do formset
-            for form_item in formset:
-                for field in form_item:
-                    if field.errors:
-                        errors.extend(field.errors)
-        if errors:
-            from django.contrib import messages
-            messages.warning(self.request, "Erro(s): " + " ".join(errors))
-        return self.render_to_response(context)
+        messages.warning(self.request, "Erro ao processar a movimentação de saída.")
+        return self.render_to_response(self.get_context_data(form=form))
+
+
+# API que pega os materiais cadastrados
+def api_materials(request):
+    termo = request.GET.get('term', '')
+    if termo.isdigit():
+        # Se o termo for numérico, pesquisa somente pelo id exato
+        materiais = Material.objects.filter(id=int(termo))
+    else:
+        # Caso contrário, pesquisa pelo nome
+        materiais = Material.objects.filter(nome__icontains=termo)
+
+    resultados = []
+    for material in materiais:
+        label_text = f"{material.id} - {material.nome}"
+        resultados.append({
+            'id': material.id,
+            'label': label_text,
+        })
+    return JsonResponse(resultados, safe=False)

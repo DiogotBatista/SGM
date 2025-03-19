@@ -48,7 +48,7 @@ class Movimentacao(models.Model):
         is_new = self.pk is None
         super().save(*args, **kwargs)
         if is_new and not self.codigo:
-            self.codigo = "MV" + str(self.pk).zfill(6)
+            self.codigo = "MV" + str(self.pk).zfill(10)
             super().save(update_fields=['codigo'])
 
     def __str__(self):

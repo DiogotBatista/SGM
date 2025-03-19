@@ -8,6 +8,14 @@
     {% endif %}
 </div>
 <div class="container mt-4">
+    <header class="mb-4 text-center">
+        <h1>SGM - Sistema de Gestão de materiais</h1>
+        {% if empresa %}
+            <h2 class="fs-2 mt-3">{{ empresa.nome }}</h2>
+        {% else %}
+            <h2 class="fs-2 text-danger mt-3">Empresa não definida</h2>
+        {% endif %}
+    </header>
     <div class="row g-4 mt-4">
         <!--            Card materiais-->
         <div class="col-md-4">
