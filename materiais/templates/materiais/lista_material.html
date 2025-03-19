@@ -14,7 +14,7 @@
       <!-- Formulário de Pesquisa com caixa de seleção para grupo -->
     <form method="get" class="mb-3">
         <div class="input-group">
-            <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Pesquisar material...">
+            <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Pesquisar por cod. ou nome do material...">
             <select name="grupo" class="form-select">
                 <option value="">Todos os grupos</option>
                 {% for grupo in grupos %}

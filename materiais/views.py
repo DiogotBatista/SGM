@@ -16,13 +16,14 @@ class MaterialListView(AccessRequiredMixin, ListView):
     paginate_by = 20
     ordering = ['id']
 
-
-
     def get_queryset(self):
         queryset = super().get_queryset()
         query = self.request.GET.get('q')
         if query:
-            queryset = queryset.filter(Q(nome__icontains=query))
+            queryset = queryset.filter(
+                Q(nome__icontains=query) |
+                Q(id__icontains=query)
+            )
         grupo = self.request.GET.get('grupo')
         if grupo:
             queryset = queryset.filter(grupo__pk=grupo)

@@ -17,12 +17,9 @@ from .forms import (
 from django.http import JsonResponse
 from materiais.models import Material
 
-
-
 class MovimentacoesDashboardView(AccessRequiredMixin, TemplateView):
     allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
     template_name = 'movimentacoes/dashboard_movimentacoes.html'
-
 
 class MovimentoListView(AccessRequiredMixin, ListView):
     allowed_roles = ['Gestor', 'Almoxarife', 'Operador']
@@ -38,7 +35,8 @@ class MovimentoListView(AccessRequiredMixin, ListView):
         if query:
             queryset = queryset.filter(
                 Q(obra__codigo__icontains=query) |
-                Q(codigo__icontains=query)
+                Q(codigo__icontains=query) |
+                Q(documento__icontains=query)
             )
         return queryset
 
@@ -179,10 +177,8 @@ class MovimentacaoSaidaCreateView(AccessRequiredMixin, CreateView):
 def api_materials(request):
     termo = request.GET.get('term', '')
     if termo.isdigit():
-        # Se o termo for numérico, pesquisa somente pelo id exato
         materiais = Material.objects.filter(id=int(termo))
     else:
-        # Caso contrário, pesquisa pelo nome
         materiais = Material.objects.filter(nome__icontains=termo)
 
     resultados = []
@@ -191,5 +187,9 @@ def api_materials(request):
         resultados.append({
             'id': material.id,
             'label': label_text,
+            'saldo': material.saldo_atual,  # Retorna o saldo atual
         })
     return JsonResponse(resultados, safe=False)
+
+
+
