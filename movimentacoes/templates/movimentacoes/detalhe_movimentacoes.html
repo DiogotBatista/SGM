@@ -10,8 +10,12 @@
     </div>
     <div class="card-body">
       <p><strong>Tipo:</strong> {{ movimentacao.tipo }}</p>
-      <p><strong>Obra:</strong> {{ movimentacao.obra|default:"-" }}</p>
-      <p><strong>Documento:</strong> {{ movimentacao.documento|default:"-" }}</p>
+      {% if movimentacao.obra %}
+        <p><strong>Obra:</strong> {{ movimentacao.obra|default:"-" }}</p>
+      {% endif %}
+      {% if movimentacao.documento %}
+        <p><strong>Documento:</strong> {{ movimentacao.documento|default:"-" }}</p>
+      {% endif %}
       <p><strong>Data da Movimentação:</strong> {{ movimentacao.data_movimentacao|date:"d/m/Y H:i" }}</p>
       <p><strong>Realizado por:</strong>
         {% if movimentacao.realizado_por %}
