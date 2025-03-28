@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Relatório de Movimentações{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Relatório de Movimentações</h1>
+    <form method="get" class="mb-3">
+        {{ filterset.form.as_p }}
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'relatorio_movimentacoes' %}" class="btn btn-secondary">Limpar</a>
+    </form>
+    <!-- Exibe a lista filtrada -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="text-center">Código</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-center">Doc.</th>
+                <th class="text-center">Contrato</th>
+                <th class="text-center">Obra</th>
+                <th class="text-center">Realizado por</th>
+                <th class="text-center">Data da Mov.</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mov in movimentacoes %}
+            <tr>
+                <td class="text-center">{{ mov.codigo }}</td>
+                <td class="text-center">{{ mov.tipo }}</td>
+                <td class="text-center">{{ mov.documento |default:"-"}}</td>
+                <td class="text-center"> {{ mov.obra.contrato |default:"-"}}</td>
+                <td class="text-center">{{ mov.obra |default:"-"}}</td>
+                <td class="text-center">
+                    {% if mov.realizado_por %}
+                        {{ mov.realizado_por.get_full_name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ mov.data_movimentacao|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Nenhuma movimentação encontrada.</td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Paginação, se necessário -->
+</div>
+{% endblock %}
