@@ -4,7 +4,7 @@ from materiais.models import Material
 
 class RelatorioObraForm(forms.Form):
     obra = forms.ModelChoiceField(
-        queryset=Obra.objects.filter(ativo=True),
+        queryset=Obra.objects.all(),
         required=True,
         label='Obra',
         widget=forms.Select(attrs={'class': 'form-select'})
@@ -12,7 +12,7 @@ class RelatorioObraForm(forms.Form):
 
 class RelatorioContratoForm(forms.Form):
     contrato = forms.ModelChoiceField(
-        queryset=Contrato.objects.filter(ativo=True),
+        queryset=Contrato.objects.all(),
         required=True,
         label='Contrato',
         widget=forms.Select(attrs={'class': 'form-select'})
@@ -42,7 +42,7 @@ class RelatorioMaterialForm(forms.Form):
         self.fields['material'].label_from_instance = lambda obj: f"{obj.id} - {obj.nome}"
 
     material = forms.ModelChoiceField(
-        queryset=Material.objects.filter(ativo=True),
+        queryset=Material.objects.all(),
         required=True,
         label='Material',
         widget=forms.Select(attrs={'class': 'form-select'})
