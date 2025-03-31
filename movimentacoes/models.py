@@ -1,3 +1,4 @@
+# movimentacoes/models.py
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -39,28 +40,12 @@ class Movimentacao(models.Model):
         verbose_name_plural = 'Movimentações'
         ordering = ['-data_movimentacao']
 
-    def save(self, *args, **kwargs):
-        """
-        Salva a movimentação.
-        Se for uma nova instância (sem pk) e o código não estiver definido,
-        gera um código com o prefixo "MV" seguido do ID formatado com zeros à esquerda (6 dígitos).
-        """
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
-        if is_new and not self.codigo:
-            self.codigo = "MV" + str(self.pk).zfill(10)
-            super().save(update_fields=['codigo'])
-
     def __str__(self):
         return self.codigo
 
     @property
     def tipo(self):
-        """
-        Retorna o tipo de movimentação (Entrada ou Saída) com base no primeiro item associado.
-        Caso não haja itens, retorna "N/A".
-        """
-        first_item = self.itens.first()  # 'itens' é o related_name definido no MovimentoItem
+        first_item = self.itens.first()
         if first_item:
             return first_item.get_tipo_display()
         return "N/A"
@@ -100,23 +85,15 @@ class MovimentoItem(models.Model):
         ordering = ['material']
 
     def clean(self):
-        """
-        Valida o item da movimentação:
-        - A quantidade deve ser positiva.
-        - Para saídas, a quantidade não pode exceder o saldo disponível do material.
-        """
         if self.quantidade is None or self.quantidade <= 0:
             raise ValidationError("A quantidade deve ser um valor positivo.")
 
         if self.tipo == self.SAIDA:
-            saldo = self.material.saldo_atual  # ou saldo_atual, conforme sua implementação
+            saldo = self.material.saldo_atual
             if self.quantidade > saldo:
                 raise ValidationError(
                     f"Quantidade para saída ({self.quantidade}) excede o saldo disponível ({saldo})."
                 )
 
     def __str__(self):
-        # Corrigido: utiliza 'quantidade' em vez de 'saldo'
         return f"{self.get_tipo_display()} - {self.quantidade} de {self.material.nome}"
-
-
