@@ -54,10 +54,11 @@ class Command(BaseCommand):
             material_obj, created = Material.objects.get_or_create(
                 nome=nome_material,
                 defaults={
-                    'saldo': 0,  # Valor padrão, pois não há coluna no Excel
+                    'saldo_inicial': 0,
+                    'saldo_atual': 0,
                     'unidade': unidade_obj,
                     'grupo': grupo_obj,
-                    'ativo': True,  # Valor padrão
+                    'ativo': True,
                     'created_by': user,
                     'updated_by': user,
                 }

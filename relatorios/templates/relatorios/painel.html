@@ -66,6 +66,7 @@
         <table class="table table-striped table-bordered table-hover align-middle">
           <thead class="table-light position-sticky top-0 shadow-sm">
             <tr>
+              <th class="text-center">Cod.</th>
               <th class="text-center">Material</th>
               <th class="text-center">Quantidade</th>
               {% if mostrar_tipo %}<th class="text-center">Tipo</th>{% endif %}
@@ -83,6 +84,7 @@
           <tbody>
             {% for item in page_obj %}
               <tr>
+                <td class="text-center">{{ item.material.id }}</td>
                 <td class="text-center">{{ item.material.nome }}</td>
                 <td class="text-center">{{ item.quantidade }}</td>
                 {% if mostrar_tipo %}

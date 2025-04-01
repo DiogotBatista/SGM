@@ -65,7 +65,8 @@ def painel_relatorios(request):
             consulta_realizada = True
 
     if itens is not None:
-        paginator = Paginator(itens, 10)
+        itens = itens.order_by('-movimentacao__data_movimentacao')
+        paginator = Paginator(itens, 20)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -132,6 +133,8 @@ def exportar_excel(request):
             if tipo_mov:
                 itens = itens.filter(tipo=tipo_mov)
 
+    itens = itens.order_by('-movimentacao__data_movimentacao')
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'Relatório'
@@ -192,6 +195,8 @@ def exportar_pdf(request):
             itens = MovimentoItem.objects.filter(material=material)
             if tipo_mov:
                 itens = itens.filter(tipo=tipo_mov)
+
+    itens = itens.order_by('-movimentacao__data_movimentacao')
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(A4))

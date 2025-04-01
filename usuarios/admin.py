@@ -4,7 +4,7 @@ from .models import Usuario
 
 class CustomUserAdmin(UserAdmin):
     model = Usuario
-    list_display = ('username', 'email', 'first_name', 'last_name', 'display_cargo', 'is_staff', 'is_superuser')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'last_login', 'display_cargo', 'is_staff', 'is_superuser')
     fieldsets = UserAdmin.fieldsets
     add_fieldsets = UserAdmin.add_fieldsets
 
