@@ -64,17 +64,19 @@ class ContratoForm(forms.ModelForm):
 class ObraForm(forms.ModelForm):
     class Meta:
         model = Obra
-        fields = ['codigo', 'contrato', 'local', 'ativo']
+        fields = ['codigo', 'contrato', 'descricao', 'local', 'ativo']
         labels = {
             'codigo': 'Cod. Obra',
             'local': 'Local',
             'contrato': 'Contrato',
+            'descricao': 'Descrição',
             'ativo': 'Ativo',
         }
         help_texts = {
             'codigo': 'Código da obra/serviço',
             'local': 'Local de execução da obra',
             'contrato': 'Informar o contrato da obra',
+            'descricao': 'Descrição ou observações sobre a obra',
             'ativo': 'Indica se a obra está ativa',
         }
         widgets = {

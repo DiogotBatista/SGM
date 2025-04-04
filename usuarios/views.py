@@ -15,7 +15,7 @@ class UsuarioListView(AccessRequiredMixin, ListView):
     ordering = ['id']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(is_superuser=False)
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(

@@ -66,7 +66,7 @@ class MaterialUpdateView(AccessRequiredMixin, UpdateView):
         return response
 
 class MaterialDeleteView(AccessRequiredMixin, DeleteView):
-    allowed_roles = ['Gestor', 'Almoxarife']
+    allowed_roles = ['Gestor']
     no_permission_redirect_url = 'lista_materiais'
     model = Material
     template_name = 'materiais/excluir_material.html'
